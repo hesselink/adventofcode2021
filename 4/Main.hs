@@ -3,7 +3,7 @@ module Main where
 import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.List.Split (splitOn)
-import Data.List (groupBy, sortBy, intercalate)
+import Data.List (groupBy, sortBy, intercalate, findIndex)
 import Data.Function (on)
 import Data.Maybe (isNothing, fromMaybe)
 import Data.Ord (comparing)
@@ -16,6 +16,10 @@ main = do
       [winningBoard] = filter hasBingo (boards endState)
       result = score (lastDraw endState) winningBoard
   print result
+  let endState2 = runUntilBeforeFinalBingo startState
+      (d, b) = lastBoardState endState2
+      result2 = score d b
+  print result2
 
 data State = State
   { draws :: [Int]
@@ -96,3 +100,19 @@ showNum n | n < 10 = " " <> show n
 
 score :: Int -> Board -> Int
 score d = (* d) . sum . map (fromMaybe 0) . Map.elems
+
+runUntilBeforeFinalBingo :: State -> State
+runUntilBeforeFinalBingo st =
+  let st' = drawOne st
+  in if allHaveBingo st'
+     then st
+     else runUntilBeforeFinalBingo st'
+
+allHaveBingo :: State -> Bool
+allHaveBingo = all hasBingo . boards
+
+lastBoardState :: State -> (Int, Board)
+lastBoardState st =
+  let st' = drawOne st
+      Just ix = findIndex (not . hasBingo) (boards st)
+  in (lastDraw st', boards st' !! ix)
