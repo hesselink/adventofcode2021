@@ -1,12 +1,8 @@
 module Main where
 
-import Data.Map (Map)
-import qualified Data.Map as Map
 import Data.List.Split (splitOn)
-import Data.List (groupBy, sortBy, intercalate, findIndex)
-import Data.Function (on)
+import Data.List (intercalate, findIndex, transpose)
 import Data.Maybe (isNothing, fromMaybe)
-import Data.Ord (comparing)
 
 main :: IO ()
 main = do
@@ -27,7 +23,7 @@ data State = State
   , boards :: [Board]
   } deriving (Show, Eq)
 
-type Board = Map (Int, Int) (Maybe Int)
+type Board = [[Maybe Int]]
 
 parse :: String -> State
 parse str =
@@ -37,11 +33,7 @@ parse str =
   in State ds 0 bs
 
 parseBoard :: [String] -> Board
-parseBoard ls =
-  let nums = map (map (read :: String -> Int) . words) ls
-      mk y ns = map (mkOne y) ns
-      mkOne y (x, n) = ((x, y), Just n)
-  in Map.fromList $ concat $ zipWith mk [0..] (map (zip [0..]) nums)
+parseBoard = map (map (Just . read) . words)
 
 runUntilFirstBingo :: State -> State
 runUntilFirstBingo st =
@@ -62,23 +54,15 @@ crossOff :: Int -> [Board] -> [Board]
 crossOff n = map (crossOffOne n)
 
 crossOffOne :: Int -> Board -> Board
-crossOffOne n = fmap (\v -> if v == Just n then Nothing else v)
+crossOffOne n = map (map (\v -> if v == Just n then Nothing else v))
 
 anyHasBingo :: State -> Bool
 anyHasBingo = any hasBingo . boards
 
 hasBingo :: Board -> Bool
 hasBingo b =
-  let l = Map.toList b
-      rs = map (map snd)
-         . groupBy ((==) `on` (snd . fst))
-         . sortBy (comparing (snd . fst) <> comparing (fst . fst))
-         $ l
-      cs = map (map snd)
-         . groupBy ((==) `on` (fst . fst))
-         . sortBy (comparing (fst . fst) <> comparing (snd . fst))
-         $ l
-  in any (all isNothing) rs || any (all isNothing) cs
+  let b2 = transpose b
+  in any (all isNothing) b || any (all isNothing) b2
 
 ppr :: State -> String
 ppr st = intercalate "\n\n" $
@@ -89,17 +73,13 @@ ppr st = intercalate "\n\n" $
 pprBoard :: Board -> String
 pprBoard = intercalate "\n"
          . map (intercalate " " . map (maybe "." showNum))
-         . map (map snd)
-         . groupBy ((==) `on` (snd . fst))
-         . sortBy (comparing (snd . fst) <> comparing (fst . fst))
-         . Map.toList
 
 showNum :: Int -> String
 showNum n | n < 10 = " " <> show n
           | otherwise = show n
 
 score :: Int -> Board -> Int
-score d = (* d) . sum . map (fromMaybe 0) . Map.elems
+score d = (* d) . sum . map (fromMaybe 0) . concat
 
 runUntilBeforeFinalBingo :: State -> State
 runUntilBeforeFinalBingo st =
