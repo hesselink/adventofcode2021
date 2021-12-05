@@ -1,3 +1,4 @@
+{-# LANGUAGE ParallelListComp #-}
 module Main where
 
 import Data.List (group, sort)
@@ -7,8 +8,10 @@ main :: IO ()
 main = do
   f <- readFile "input/5"
   let ls = parse f
-      result = length . overlappingPoints $ ls
+      result = length . overlappingPoints . filter (not . isDiagonal) $ ls
   print result
+  let result2 = length . overlappingPoints $ ls
+  print result2
 
 type Line = (Point, Point)
 type Point = (Int, Int)
@@ -28,14 +31,15 @@ parsePoint str =
 
 allPoints :: Line -> [Point]
 allPoints ((x1, y1), (x2, y2)) | x1 == x2 || y1 == y2 =
-  [(x, y) | x <- [xMin .. xMax], y <- [yMin .. yMax]]
-                               | otherwise = []
+  [(x, y) | x <- enumFromThenTo x1 stepX x2, y <- enumFromThenTo y1 stepY y2]
+                               | otherwise = [(x, y) | x <- enumFromThenTo x1 stepX x2| y <- enumFromThenTo y1 stepY y2]
     where
-      xMin = min x1 x2
-      yMin = min y1 y2
-      xMax = max x1 x2
-      yMax = max y1 y2
+      stepX = if x2 > x1 then x1 + 1 else x1 - 1
+      stepY = if y2 > y1 then y1 + 1 else y1 - 1
 
 overlappingPoints :: [Line] -> [Point]
 overlappingPoints
   = map head . filter ((> 1) . length) . group . sort . concatMap allPoints
+
+isDiagonal :: Line -> Bool
+isDiagonal ((x1, y1), (x2, y2)) = not (x1 == x2 || y1 == y2)
