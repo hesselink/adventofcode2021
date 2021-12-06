@@ -39,8 +39,7 @@ executable 4
   import:              shared-settings
   main-is:             Main.hs
   hs-source-dirs:      4
-  build-depends:       containers
-                     , split
+  build-depends:       split
 
 executable 5
   import:              shared-settings
