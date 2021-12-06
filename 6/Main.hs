@@ -34,7 +34,7 @@ simulateMemo 0 xs = genericLength xs
 simulateMemo n xs = fst $ foldl' (\(s, m) x -> let !(s', m') = goOne n x m in (s + s', m')) (0, Map.empty) xs
   where
     goOne :: Int -> Int -> Map (Int, Int) Integer -> (Integer, Map (Int, Int) Integer)
-    goOne 0 x m = (1, m)
+    goOne 0 _ m = (1, m)
     goOne n' x m =
       case Map.lookup (n', x) m of
         Just v -> (v, m)
