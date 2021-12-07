@@ -53,3 +53,9 @@ executable 6
   hs-source-dirs:      6
   build-depends:       containers
                      , split
+
+executable 7
+  import:              shared-settings
+  main-is:             Main.hs
+  hs-source-dirs:      7
+  build-depends:       split
