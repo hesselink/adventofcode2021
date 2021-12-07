@@ -12,6 +12,9 @@ main = do
       fuels = map (flip fuelNeeded crabs) [0..]
       minFuel = findMin fuels
   print minFuel
+  let fuels2 = map (flip fuelNeeded2 crabs) [0..]
+      minFuel2 = findMin fuels2
+  print minFuel2
 
 fuelNeeded :: Int -> [(Int, Int)] -> Int
 fuelNeeded pos = sum . map fuelOne
@@ -25,3 +28,11 @@ findMin (x:xs) = go x xs
     go m [] = m
     go m (y:ys) | y < m = go y ys
                 | otherwise = m
+
+fuelNeeded2 :: Int -> [(Int, Int)] -> Int
+fuelNeeded2 pos = sum . map fuelOne
+  where
+    fuelOne (crab, num) = triangleNum (abs (crab - pos)) * num
+
+triangleNum :: Int -> Int
+triangleNum n = (n + 1) * n `div` 2
