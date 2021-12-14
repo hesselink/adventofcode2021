@@ -11,12 +11,15 @@ main :: IO ()
 main = do
   f <- readFile "input/14"
   let st = parse f
-      finalCounts = Map.elems . countElements . nTimes 10 step $ st
-      result = maximum finalCounts - minimum finalCounts
+      result = solve 10 st
   print result
-  let finalCounts2 = Map.elems . countElements . nTimes 40 step $ st
-      result2 = maximum finalCounts2 - minimum finalCounts2
+  let result2 = solve 40 st
   print result2
+
+solve :: Int -> State -> Integer
+solve n st =
+  let finalCounts = Map.elems . countElements . nTimes n step $ st
+  in maximum finalCounts - minimum finalCounts
 
 data State = State
   { counts :: Count Pair
