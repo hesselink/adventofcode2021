@@ -24,6 +24,8 @@ library
   import:              shared-settings
   hs-source-dirs:      lib
   exposed-modules:     Lib
+                     , Lib.Count
+  build-depends:       containers
 
 executable 1
   import:              shared-settings

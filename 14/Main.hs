@@ -1,11 +1,10 @@
 module Main where
 
-import Data.Map (Map)
 import qualified Data.Map as Map
 import Data.List (foldl')
-import Data.Maybe (fromMaybe)
 
 import Lib
+import Lib.Count
 
 main :: IO ()
 main = do
@@ -28,7 +27,6 @@ data State = State
   , lastEl :: Char
   } deriving (Show, Eq)
 
-type Count a = Map a Integer
 type Pair = (Char, Char) -- pair of elements AB
 type Rule = (Pair, (Pair, Pair))
 
@@ -47,24 +45,6 @@ parseRule :: String -> (Pair, (Pair, Pair))
 parseRule (a:b:' ':'-':'>':' ':c:[]) = ((a, b), ((a, c), (c, b)))
 parseRule s = error $ "Failed to parse Rule: " ++ s
 
-count :: Ord a => [a] -> Count a
-count = foldl' (flip incCount) Map.empty
-
-fromCounts :: Ord a => [(a, Integer)] -> Count a
-fromCounts = unionsCounts . map (Map.fromList . pure)
-
-incCount :: Ord a => a -> Count a -> Count a
-incCount v = Map.insertWith (+) v 1
-
-getCount :: Ord a => a -> Count a -> Integer
-getCount v = fromMaybe 0 . Map.lookup v
-
-resetCount :: Ord a => a -> Count a -> Count a
-resetCount = Map.delete
-
-unionsCounts :: Ord a => [Count a] -> Count a
-unionsCounts = Map.unionsWith (+)
-
 step :: State -> State
 step st =
   let cs = counts st
@@ -79,5 +59,12 @@ split cs (p, (p1, p2)) =
   in if c == 0 then Map.empty else fromCounts [(p1, c), (p2, c)]
 
 countElements :: State -> Count Char
-countElements st =
-  fmap (`div` 2) . incCount (lastEl st) . incCount (initEl st) . unionsCounts . map (\((a,b), n) -> fromCounts [(a, n), (b, n)]) . Map.toList . counts $ st
+countElements st
+  = fmap (`div` 2)
+  . incCount (lastEl st)
+  . incCount (initEl st)
+  . unionsCounts
+  . map (\((a,b), n) -> fromCounts [(a, n), (b, n)])
+  . Map.toList
+  . counts
+  $ st

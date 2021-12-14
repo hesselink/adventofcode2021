@@ -6,13 +6,12 @@ import Data.Char (digitToInt, intToDigit)
 import Data.Sequence (Seq)
 import Data.Foldable (toList)
 import qualified Data.Sequence as Seq
-import Data.Map (Map)
-import qualified Data.Map as Map
-import Data.List (foldl', findIndex)
-import Data.Maybe (fromMaybe, fromJust)
+import Data.List (findIndex)
+import Data.Maybe (fromJust)
 import Data.Monoid (Sum (..), getSum)
 
 import Lib
+import Lib.Count
 
 main :: IO ()
 main = do
@@ -59,14 +58,8 @@ setFlashed ps = onPoints ps (const Flashed)
 
 onPoints :: [Point] -> (Octo Int -> Octo Int) -> Grid -> Grid
 onPoints ps f =
-  let cs = counts ps -- can improve here by following along with the index stepwise
+  let cs = count ps -- can improve here by following along with the index stepwise
   in Seq.mapWithIndex (\y -> Seq.mapWithIndex (\x -> nTimes (getCount (x, y) cs) f))
-
-counts :: Ord a => [a] -> Map a Int
-counts = foldl' (\m k -> Map.alter (Just . maybe 1 (+1)) k m) Map.empty
-
-getCount :: Ord a => a -> Map a Int -> Int
-getCount k = fromMaybe 0 . Map.lookup k
 
 willFlash :: Octo Int -> Bool
 willFlash = (> Normal 9)
