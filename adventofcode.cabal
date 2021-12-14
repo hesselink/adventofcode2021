@@ -100,3 +100,10 @@ executable 13
   main-is:             Main.hs
   hs-source-dirs:      13
   build-depends:       containers
+
+executable 14
+  import:              shared-settings
+  main-is:             Main.hs
+  hs-source-dirs:      14
+  build-depends:       adventofcode
+                     , containers
