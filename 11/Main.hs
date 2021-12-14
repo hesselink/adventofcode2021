@@ -12,6 +12,8 @@ import Data.List (foldl', findIndex)
 import Data.Maybe (fromMaybe, fromJust)
 import Data.Monoid (Sum (..), getSum)
 
+import Lib
+
 main :: IO ()
 main = do
   f <- readFile "input/11"
@@ -59,10 +61,6 @@ onPoints :: [Point] -> (Octo Int -> Octo Int) -> Grid -> Grid
 onPoints ps f =
   let cs = counts ps -- can improve here by following along with the index stepwise
   in Seq.mapWithIndex (\y -> Seq.mapWithIndex (\x -> nTimes (getCount (x, y) cs) f))
-
-nTimes :: Int -> (a -> a) -> a -> a
-nTimes 0 _ = id
-nTimes n f = f . nTimes (n - 1) f
 
 counts :: Ord a => [a] -> Map a Int
 counts = foldl' (\m k -> Map.alter (Just . maybe 1 (+1)) k m) Map.empty
