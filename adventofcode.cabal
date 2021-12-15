@@ -109,3 +109,10 @@ executable 14
   hs-source-dirs:      14
   build-depends:       adventofcode
                      , containers
+
+executable 15
+  import:              shared-settings
+  main-is:             Main.hs
+  hs-source-dirs:      15
+  build-depends:       containers
+                     , PSQueue
