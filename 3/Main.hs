@@ -3,8 +3,8 @@ module Main where
 import Data.List (transpose, sortBy, group, sort, unfoldr)
 import Data.Ord (comparing)
 import Control.Arrow ((***))
-import Numeric (readInt)
-import Data.Char (digitToInt)
+
+import Lib
 
 main :: IO ()
 main = do
@@ -14,13 +14,13 @@ main = do
       result = gamma * epsilon
   print result
   let (o, c) = (oxygen rows, co2 rows)
-      result2 = parseBinary o * parseBinary c
+      result2 = readBinUnsafe o * readBinUnsafe c
   print result2
 
 type Bit = Char
 
 computeGammaEpsilon :: [[Bit]] -> (Int, Int)
-computeGammaEpsilon = (parseBinary *** parseBinary) . unzip . map commonUncommon
+computeGammaEpsilon = (readBinUnsafe *** readBinUnsafe) . unzip . map commonUncommon
 
 commonUncommon :: [Bit] -> (Bit, Bit)
 commonUncommon = (\[b1, b2] -> (b1, b2))
@@ -28,9 +28,6 @@ commonUncommon = (\[b1, b2] -> (b1, b2))
                . sortBy (flip (comparing length <> compare))
                . group
                . sort
-
-parseBinary :: [Bit] -> Int
-parseBinary = fst . head . readInt 2 (`elem` "01") digitToInt
 
 oxygen :: [[Bit]] -> [Bit]
 oxygen = unfoldr (step fst)
