@@ -1,3 +1,4 @@
+{-# LANGUAGE LambdaCase #-}
 module Main where
 
 import Data.Char (digitToInt, intToDigit)
@@ -13,8 +14,11 @@ main :: IO ()
 main = do
   f <- readFile "input/16"
   let bs = toBits (init f)
-      result = sumVersions (runParser parsePacket bs)
+      pt = runParser parsePacket bs
+      result = sumVersions pt
   print result
+  let result2 = value pt
+  print result2
 
 type Bit = Char
 
@@ -31,7 +35,26 @@ padWith c l s | length s >= l = s
 sumVersions :: Packet -> Int
 sumVersions (Packet v pt) = v + case pt of
   Literal _ -> 0
-  Operator ps -> sum (map sumVersions ps)
+  Operator _ ps -> sum (map sumVersions ps)
+
+value :: Packet -> Int
+value (Packet _ pt) = case pt of
+  Literal n -> n
+  Operator o ps ->
+    case o of
+      Sum -> sum (map value ps)
+      Product -> product (map value ps)
+      Minimum -> minimum (map value ps)
+      Maximum -> maximum (map value ps)
+      GreaterThan ->
+        let [p1, p2] = ps
+        in if value p1 > value p2 then 1 else 0
+      LessThan ->
+        let [p1, p2] = ps
+        in if value p1 < value p2 then 1 else 0
+      EqualTo ->
+        let [p1, p2] = ps
+        in if value p1 == value p2 then 1 else 0
 
 data Packet = Packet
   { version :: Int
@@ -60,14 +83,34 @@ parsePacket = do
   tid <- parseTypeID
   case tid of
     4 -> (Packet v . Literal) <$> parseLiteral
-    _ -> (Packet v . Operator) <$> parseOperator
+    o -> (Packet v . Operator (parseOp o)) <$> parseOperator
+
+parseOp :: Int -> Op
+parseOp = \case
+  0 -> Sum
+  1 -> Product
+  2 -> Minimum
+  3 -> Maximum
+  5 -> GreaterThan
+  6 -> LessThan
+  7 -> EqualTo
+  n -> error $ "Unknown operator: " ++ show n
 
 parseOperator :: Parser [Packet]
 parseOperator = do
   lType <- parseLengthTypeID
   case lType of
-    TotalLength _l -> P.many (P.try parsePacket)
-    NumPackets _p -> P.many (P.try parsePacket)
+    TotalLength l -> do
+      o <- P.getOffset
+      parseUntilOffset (o + l) parsePacket
+    NumPackets p -> P.count p parsePacket
+
+parseUntilOffset :: Int -> Parser a -> Parser [a]
+parseUntilOffset o p = do
+  o' <- P.getOffset
+  if o' < o
+  then (:) <$> p <*> parseUntilOffset o p
+  else pure []
 
 data LengthTypeID = TotalLength Int | NumPackets Int
   deriving (Show, Eq)
