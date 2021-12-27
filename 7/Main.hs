@@ -4,6 +4,8 @@ import Data.List.Split (splitOn)
 import Data.List (sort, group)
 import Control.Arrow ((&&&))
 
+import Lib
+
 main :: IO ()
 main = do
   f <- readFile "input/7"
@@ -33,6 +35,3 @@ fuelNeeded2 :: Int -> [(Int, Int)] -> Int
 fuelNeeded2 pos = sum . map fuelOne
   where
     fuelOne (crab, num) = triangleNum (abs (crab - pos)) * num
-
-triangleNum :: Int -> Int
-triangleNum n = (n + 1) * n `div` 2

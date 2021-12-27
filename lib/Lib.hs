@@ -12,3 +12,6 @@ readBin = readInt 2 (`elem` "01") digitToInt
 
 readBinUnsafe :: (Num a, Eq a) => String -> a
 readBinUnsafe = fst . head . readBin
+
+triangleNum :: Int -> Int
+triangleNum n = (n + 1) * n `div` 2
