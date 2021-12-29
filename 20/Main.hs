@@ -20,7 +20,7 @@ main = do
       output = enhance (enhance input)
       result = countLit (image output)
   print result
-  let output2 = nTimes 50 enhance input
+  let output2 = nTimes (50 :: Int) enhance input
       result2 = countLit (image output2)
   print result2
 
