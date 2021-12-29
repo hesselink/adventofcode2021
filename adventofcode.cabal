@@ -158,3 +158,4 @@ executable 21
   import:              shared-settings
   main-is:             Main.hs
   hs-source-dirs:      21
+  build-depends:       containers
