@@ -6,8 +6,6 @@ import Control.Arrow ((&&&))
 
 import Lib
 
-import Debug.Trace
-
 main :: IO ()
 main = do
   f <- readFile "input/17"

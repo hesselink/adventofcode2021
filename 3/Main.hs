@@ -1,3 +1,4 @@
+{-# LANGUAGE ScopedTypeVariables #-}
 module Main where
 
 import Data.List (transpose, sortBy, group, sort, unfoldr)
@@ -14,7 +15,7 @@ main = do
       result = gamma * epsilon
   print result
   let (o, c) = (oxygen rows, co2 rows)
-      result2 = readBinUnsafe o * readBinUnsafe c
+      result2 :: Int = readBinUnsafe o * readBinUnsafe c
   print result2
 
 type Bit = Char
