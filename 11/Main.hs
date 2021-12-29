@@ -12,6 +12,7 @@ import Data.Monoid (Sum (..), getSum)
 
 import Lib
 import Lib.Count
+import Lib.Point (Point, neighbours)
 
 main :: IO ()
 main = do
@@ -26,7 +27,6 @@ type Grid = Seq (Seq (Octo Int))
 data Octo a = Flashed
             | Normal a
             deriving (Show, Eq, Ord, Functor)
-type Point = (Int, Int)
 
 parseGrid :: String -> Grid
 parseGrid = Seq.fromList . map (Seq.fromList . map (Normal . digitToInt)) . lines
@@ -46,9 +46,6 @@ handleFlashes g =
 
 findFlashing :: Grid -> [Point]
 findFlashing = Seq.foldMapWithIndex (\y l -> map (,y) . Seq.findIndicesL willFlash $ l)
-
-neighbours :: Point -> [Point]
-neighbours (x, y) = [(nx, ny) | nx <- [x - 1, x, x + 1], ny <- [y - 1, y, y + 1], not (nx == x && ny == y)]
 
 increaseNeighbours :: [Point] -> Grid -> Grid
 increaseNeighbours ps = onPoints (concatMap neighbours ps) (fmap (+1))

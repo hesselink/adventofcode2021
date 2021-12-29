@@ -12,3 +12,5 @@ parseGrid parse
   . zipWith (\y -> zipWith (\x c -> ((x, y), parse c)) [0..]) [0..]
   . lines
 
+neighbours :: Point -> [Point]
+neighbours (x, y) = [(nx, ny) | nx <- [x - 1, x, x + 1], ny <- [y - 1, y, y + 1], not (nx == x && ny == y)]
