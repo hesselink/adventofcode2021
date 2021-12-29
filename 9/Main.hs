@@ -5,6 +5,8 @@ import qualified Data.Map as Map
 import Data.Map (Map)
 import Data.List (sort, group, sortBy)
 
+import Lib.Point
+
 main :: IO ()
 main = do
   f <- readFile "input/9"
@@ -38,14 +40,8 @@ zipWith5 _ _  _  _  [] _  = []
 zipWith5 _ _  _  _  _  [] = []
 zipWith5 f (a:as) (b:bs) (c:cs) (d:ds) (e:es) = f a b c d e : zipWith5 f as bs cs ds es
 
-type Point = (Int, Int)
-
 parseAsMap :: String -> Map Point Int
-parseAsMap
-  = Map.fromList
-  . concat
-  . zipWith (\y -> zipWith (\x c -> ((x, y), read [c])) [0..]) [0..]
-  . lines
+parseAsMap = parseGrid (\c -> read [c])
 
 findBasin :: Map Point Int -> Point -> Maybe Point
 findBasin ds p =

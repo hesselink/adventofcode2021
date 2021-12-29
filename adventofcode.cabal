@@ -25,6 +25,7 @@ library
   hs-source-dirs:      lib
   exposed-modules:     Lib
                      , Lib.Count
+                     , Lib.Point
   build-depends:       containers
 
 executable 1
@@ -80,6 +81,7 @@ executable 9
   main-is:             Main.hs
   hs-source-dirs:      9
   build-depends:       containers
+                     , adventofcode
 
 executable 10
   import:              shared-settings
