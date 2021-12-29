@@ -137,3 +137,10 @@ executable 18
   import:              shared-settings
   main-is:             Main.hs
   hs-source-dirs:      18
+
+executable 19
+  import:              shared-settings
+  main-is:             Main.hs
+  hs-source-dirs:      19
+  build-depends:       split
+                     , containers
