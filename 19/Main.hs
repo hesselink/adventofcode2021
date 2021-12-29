@@ -11,8 +11,10 @@ main :: IO ()
 main = do
   f <- readFile "input/19"
   let st = parse f
-      ps = findAllPoints st
+      (ts, ps) = findAllPoints st
   print (length ps)
+  let result2 = greatestManhattanDistance ts
+  print result2
 
 data State = State
   { scanners :: [Scanner]
@@ -51,9 +53,9 @@ translation :: Point3 -> Point3 -> Point3
 translation (x1, y1, z1) (x2, y2, z2) = (x2 - x1, y2 - y1, z2 - z1)
 
 -- translated points of second scanner to first scanner's frame of reference
-match12 :: Scanner -> Scanner -> Maybe Scanner
+match12 :: Scanner -> Scanner -> Maybe (Point3, Scanner)
 match12 sc1 sc2 = listToMaybe
-  [ sc2' | p1 <- Set.toList sc1
+  [ (t, sc2') | p1 <- Set.toList sc1
          , p2 <- Set.toList sc2
          , let t = translation p2 p1
          , let sc2' = Set.map (translate t) sc2
@@ -64,16 +66,22 @@ translate :: Point3 -> Point3 -> Point3
 translate (dx, dy, dz) (x, y, z) = (x + dx, y + dy, z + dz)
 
 -- translated points of second scanner to first scanner's frame of reference
-matchAnyRotation :: Scanner -> Scanner -> Maybe Scanner
+matchAnyRotation :: Scanner -> Scanner -> Maybe (Point3, Scanner)
 matchAnyRotation sc1 sc2 = listToMaybe
-  [ sc2'' | sc2' <- allRotations sc2 , Just sc2'' <- [match12 sc1 sc2'] ]
+  [ (t, sc2'') | sc2' <- allRotations sc2 , Just (t, sc2'') <- [match12 sc1 sc2'] ]
 
-findAllPoints :: State -> Scanner
+findAllPoints :: State -> ([Point3], Scanner)
 findAllPoints (State []) = mempty
-findAllPoints (State (sc0:scRest)) = go sc0 scRest
+findAllPoints (State (sc0:scRest)) = go [] sc0 scRest
   where
-    go ps [] = ps
-    go ps (sc:scs) =
+    go ts ps [] = (ts, ps)
+    go ts ps (sc:scs) =
       case matchAnyRotation ps sc of
-        Just ps' -> go (Set.union ps ps') scs
-        Nothing -> go ps (scs ++ [sc])
+        Just (t, ps') -> go (t:ts) (Set.union ps ps') scs
+        Nothing -> go ts ps (scs ++ [sc])
+
+greatestManhattanDistance :: [Point3] -> Int
+greatestManhattanDistance ps = maximum [ manhattanDistance p1 p2 | p1 <- ps, p2 <- ps ]
+
+manhattanDistance :: Point3 -> Point3 -> Int
+manhattanDistance (x1, y1, z1) (x2, y2, z2) = abs (x2 - x1) + abs (y2 - y1) + abs (z2 - z1)
