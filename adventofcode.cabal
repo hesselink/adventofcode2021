@@ -146,3 +146,10 @@ executable 19
   hs-source-dirs:      19
   build-depends:       split
                      , containers
+
+executable 20
+  import:              shared-settings
+  main-is:             Main.hs
+  hs-source-dirs:      20
+  build-depends:       containers
+                     , adventofcode
