@@ -153,3 +153,8 @@ executable 20
   hs-source-dirs:      20
   build-depends:       containers
                      , adventofcode
+
+executable 21
+  import:              shared-settings
+  main-is:             Main.hs
+  hs-source-dirs:      21
